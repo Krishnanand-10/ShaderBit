@@ -566,7 +566,7 @@ describe('Empirical Adversarial Challenge Suite: Milestone 4 Framework Adapters'
 
     it('demonstrates context exclusivity failure when transitioning canvas from 2d to webgl2', async () => {
       const canvas = new MockHTMLCanvasElement(800, 600);
-      let errorReceived: Error | null = null;
+      let errorReceived: any = null;
 
       const action = shaderCanvas(canvas as any, {
         glsl: 'void main() {}',

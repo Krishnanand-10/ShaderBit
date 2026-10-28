@@ -175,7 +175,7 @@ function createTestDOMDocument() {
       const handlers = this.listeners.get(event.type);
       if (handlers) {
         for (const handler of Array.from(handlers)) {
-          handler.call(this, event);
+          (handler as any).call(this, event);
         }
       }
       return !event.defaultPrevented;
@@ -196,10 +196,10 @@ const initialDoc = createTestDOMDocument();
 (globalThis as any).HTMLElement = MockDOMNode;
 (globalThis as any).SVGElement = MockDOMNode;
 
-const React = await import(reactPath);
-const ReactDOMClient = await import(reactDomClientPath);
-const Vue = await import(vuePath);
-const Svelte = await import(sveltePath);
+const React: any = await import(reactPath);
+const ReactDOMClient: any = await import(reactDomClientPath);
+const Vue: any = await import(vuePath);
+const Svelte: any = await import(sveltePath);
 
 // Import compiled dist artifacts to test actual built packages
 const ReactAdapter = await import(resolve(repoRoot, 'packages/react/dist/index.js'));
@@ -385,7 +385,7 @@ describe('Milestone 4 Adversarial Stress Testing', () => {
     it('forwards ref properly through StrictMode double-mounting', async () => {
       const container = mockDoc.createElement('div');
       const root = ReactDOMClient.createRoot(container);
-      const canvasRef = React.createRef<any>();
+      const canvasRef = React.createRef();
 
       await React.act(async () => {
         root.render(
@@ -559,7 +559,7 @@ describe('Milestone 4 Adversarial Stress Testing', () => {
     it('Vue 3: executes 120 consecutive rapid uniform updates via deep reactive watcher without pipeline churn', async () => {
       const CanvasClass = (globalThis as any).HTMLCanvasElement;
       const canvas = new CanvasClass(800, 600);
-      const canvasRef = Vue.ref<HTMLCanvasElement | null>(canvas);
+      const canvasRef = Vue.ref(canvas);
 
       let pipelineInstance: any = null;
       let initCount = 0;
@@ -808,7 +808,7 @@ describe('Milestone 4 Adversarial Stress Testing', () => {
     it('Vue 3: throughput benchmark: processes 1,000 rapid reactive uniform mutations within < 250ms', async () => {
       const CanvasClass = (globalThis as any).HTMLCanvasElement;
       const canvas = new CanvasClass(800, 600);
-      const canvasRef = Vue.ref<HTMLCanvasElement | null>(canvas);
+      const canvasRef = Vue.ref(canvas);
 
       const options = Vue.reactive({
         glsl: 'void main() {}',
@@ -881,7 +881,7 @@ describe('Milestone 4 Adversarial Stress Testing', () => {
     it('Vue 3: halts render loop and disposes active driver on app.unmount()', async () => {
       const CanvasClass = (globalThis as any).HTMLCanvasElement;
       const canvas = new CanvasClass(800, 600);
-      const canvasRef = Vue.ref<HTMLCanvasElement | null>(canvas);
+      const canvasRef = Vue.ref(canvas);
       let pInstance: any = null;
 
       const TestComp = Vue.defineComponent({
@@ -1175,7 +1175,7 @@ describe('Milestone 4 Adversarial Stress Testing', () => {
     it('explicit driver failure triggers onError in React', async () => {
       const container = mockDoc.createElement('div');
       const root = ReactDOMClient.createRoot(container);
-      let caughtError: Error | null = null;
+      let caughtError: any = null;
 
       await React.act(async () => {
         root.render(
@@ -1256,7 +1256,7 @@ describe('Milestone 4 Adversarial Stress Testing', () => {
     it('Vue 3: survives WebGL context loss and re-applies uniforms upon context restoration', async () => {
       const CanvasClass = (globalThis as any).HTMLCanvasElement;
       const canvas = new CanvasClass(800, 600);
-      const canvasRef = Vue.ref<HTMLCanvasElement | null>(canvas);
+      const canvasRef = Vue.ref(canvas);
       let pipelineInstance: any = null;
 
       const TestComp = Vue.defineComponent({

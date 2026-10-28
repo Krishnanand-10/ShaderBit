@@ -1,6 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { shaderCanvas, ShaderCanvas } from './index';
 
+async function waitFor(predicate: () => boolean, timeoutMs = 1000): Promise<void> {
+  const start = Date.now();
+  while (!predicate()) {
+    if (Date.now() - start > timeoutMs) {
+      throw new Error(`waitFor timed out after ${timeoutMs}ms`);
+    }
+    await new Promise((r) => setTimeout(r, 10));
+  }
+}
+
 describe('@shaderbit/svelte', () => {
   beforeEach(() => {
     // Vitest setupFiles populates global HTMLCanvasElement
@@ -29,7 +39,7 @@ describe('@shaderbit/svelte', () => {
     expect(typeof action.update).toBe('function');
     expect(typeof action.destroy).toBe('function');
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => initializedPipeline !== null);
     expect(initializedPipeline).not.toBeNull();
     expect(initializedPipeline.isRunning).toBe(true);
     expect(initializedPipeline.uniforms.u_speed).toBe(1.0);
@@ -53,7 +63,7 @@ describe('@shaderbit/svelte', () => {
       }
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => initializedPipeline !== null);
     const firstPipeline = initializedPipeline;
     expect(firstPipeline).not.toBeNull();
 
@@ -72,19 +82,19 @@ describe('@shaderbit/svelte', () => {
     const pipelines: any[] = [];
     const action = shaderCanvas(canvas, {
       glsl: 'void main() {}',
-      driver: 'webgl2',
+      driver: 'canvas2d',
       onInit: (p: any) => {
         pipelines.push(p);
       }
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => pipelines.length === 1);
     expect(pipelines.length).toBe(1);
     const firstPipeline = pipelines[0];
 
     // Change glsl structurally
-    action.update({ glsl: 'void main() { gl_FragColor = vec4(0.0); }' });
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    action.update({ glsl: 'void main() { gl_FragColor = vec4(1.0); }' });
+    await waitFor(() => pipelines.length === 2);
 
     expect(pipelines.length).toBe(2);
     expect(firstPipeline.isRunning).toBe(false); // First pipeline disposed
@@ -117,14 +127,14 @@ describe('@shaderbit/svelte', () => {
     let errorReceived: Error | null = null;
     const action = shaderCanvas(canvas, {
       driver: 'webgl2',
-      glsl: undefined,
-      wgsl: undefined,
+      glsl: '',
       onError: (err: Error) => {
         errorReceived = err;
       }
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await waitFor(() => errorReceived !== null);
+    expect(errorReceived).not.toBeNull();
     action.destroy();
   });
 });

@@ -40,6 +40,7 @@ export function shaderCanvas(
   let pipeline: ShaderPipeline | null = null;
 
   const createPipeline = (opts: ShaderActionOptions) => {
+    if (disposed) return;
     pipeline?.dispose();
     pipeline = null;
 
@@ -61,6 +62,9 @@ export function shaderCanvas(
       .then(() => {
         if (disposed || pipeline !== inst) {
           inst.dispose();
+          if (pipeline === inst) {
+            pipeline = null;
+          }
         } else {
           inst.start();
           opts.onInit?.(inst);
