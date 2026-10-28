@@ -1,0 +1,39 @@
+{
+  "name": "@shaderbit/svelte",
+  "version": "0.1.0",
+  "description": "Svelte adapter for ShaderBit",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./ShaderCanvas.svelte": "./src/ShaderCanvas.svelte"
+  },
+  "files": [
+    "dist",
+    "src/ShaderCanvas.svelte"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --external svelte",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@shaderbit/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "svelte": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "svelte": "^4.2.18",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "shaderbit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.15.0",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "typecheck": "tsc --noEmit && pnpm -r run typecheck",
+    "test": "vitest run",
+    "lint": "tsc --noEmit && node --experimental-strip-types --test tests/e2e/integrity/zero-dependency.test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@webgpu/types": "^0.1.44",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.0"
+  }
+}
