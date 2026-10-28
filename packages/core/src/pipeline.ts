@@ -41,11 +41,22 @@ export class ShaderPipeline {
   private preventDefaultCalled = false;
   private currentPointer: [number, number] = [0.5, 0.5];
   private accumulatedTime = 0;
+  private resizeObserver: any = null;
+  private handleWindowResize = (): void => {
+    this.resize();
+  };
 
   constructor(options: ShaderPipelineOptions) {
     this.options = options;
     if (options.uniforms) {
       this.uniforms = { ...options.uniforms };
+    }
+    if ((options as any).component?.uniforms && Array.isArray((options as any).component.uniforms)) {
+      for (const u of (options as any).component.uniforms) {
+        if (u.name && u.defaultValue !== undefined && !(u.name in this.uniforms)) {
+          this.uniforms[u.name] = u.defaultValue;
+        }
+      }
     }
 
     if (
@@ -209,6 +220,24 @@ export class ShaderPipeline {
           this.workerBridge?.updatePointer(x, y);
         });
       }
+
+      if (this.options.autoResize !== false) {
+        const RO =
+          typeof ResizeObserver !== 'undefined'
+            ? ResizeObserver
+            : (globalThis as any).ResizeObserver;
+        if (typeof RO === 'function') {
+          try {
+            this.resizeObserver = new RO(() => {
+              this.resize();
+            });
+            this.resizeObserver.observe(target);
+          } catch {}
+        }
+        if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+          window.addEventListener('resize', this.handleWindowResize);
+        }
+      }
     }
 
     // Apply uniforms to active driver
@@ -268,16 +297,25 @@ export class ShaderPipeline {
       1;
     const safeDpr = rawDpr <= 0 || !isFinite(rawDpr) ? 1 : rawDpr;
 
+    const el = this.options.canvas as any;
     const w =
       width ??
-      (this.options.canvas as any).clientWidth ??
-      this.options.canvas.width ??
-      800;
+      (el?.clientWidth > 0
+        ? el.clientWidth
+        : el?.width > 0
+        ? el.width
+        : typeof window !== 'undefined' && window.innerWidth > 0
+        ? window.innerWidth
+        : 800);
     const h =
       height ??
-      (this.options.canvas as any).clientHeight ??
-      this.options.canvas.height ??
-      600;
+      (el?.clientHeight > 0
+        ? el.clientHeight
+        : el?.height > 0
+        ? el.height
+        : typeof window !== 'undefined' && window.innerHeight > 0
+        ? window.innerHeight
+        : 600);
 
     const safeW = Math.max(0, w);
     const safeH = Math.max(0, h);
@@ -316,6 +354,13 @@ export class ShaderPipeline {
       const el = this.options.canvas as any;
       el.removeEventListener('webglcontextlost', this.handleContextLost);
       el.removeEventListener('webglcontextrestored', this.handleContextRestored);
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+    if (typeof window !== 'undefined' && typeof window.removeEventListener === 'function') {
+      window.removeEventListener('resize', this.handleWindowResize);
     }
     this.powerController?.dispose();
     this.pointerNormalizer?.dispose();

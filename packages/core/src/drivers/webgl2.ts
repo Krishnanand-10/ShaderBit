@@ -25,7 +25,7 @@ export class WebGL2Driver implements IShaderDriver {
     }
 
     const vsSource = `#version 300 es
-in vec2 position;
+layout(location = 0) in vec2 position;
 void main() {
   gl_Position = vec4(position, 0.0, 1.0);
 }`;
@@ -99,10 +99,13 @@ void main() {
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer);
     this.gl.bufferData(this.gl.ARRAY_BUFFER, quadVertices, this.gl.STATIC_DRAW);
 
-    this.gl.enableVertexAttribArray(0);
-    this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, 0, 0);
+    const posLoc = this.gl.getAttribLocation(prog, 'position');
+    const safePosLoc = posLoc >= 0 ? posLoc : 0;
+    this.gl.enableVertexAttribArray(safePosLoc);
+    this.gl.vertexAttribPointer(safePosLoc, 2, this.gl.FLOAT, false, 0, 0);
 
     // Apply any cached uniforms
+    this.gl.useProgram(this.program);
     for (const [name, val] of this.uniforms.entries()) {
       this.applyUniform(name, val);
     }
@@ -137,6 +140,7 @@ void main() {
 
   private applyUniform(name: string, value: ShaderUniformValue | any): void {
     if (!this.gl || !this.program || this.gl.isContextLost()) return;
+    this.gl.useProgram(this.program);
     const loc = this.getUniformLocation(name);
     if (!loc) return;
 
@@ -172,8 +176,12 @@ void main() {
     this.gl.useProgram(this.program);
     this.gl.bindVertexArray(this.vao);
 
+    const w = this.canvas.width || 800;
+    const h = this.canvas.height || 600;
+
     this.setUniform('u_time', { type: 'float', value: time });
     this.setUniform('u_mouse', { type: 'vec2', value: mouse });
+    this.setUniform('u_resolution', { type: 'vec2', value: [w, h] });
 
     this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
   }

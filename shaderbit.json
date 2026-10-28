@@ -1,0 +1,10 @@
+{
+  "$schema": "https://shaderbit.dev/schema.json",
+  "framework": "vanilla",
+  "typescript": true,
+  "paths": {
+    "components": "@/components/shaders",
+    "lib": "@/lib/shaders"
+  },
+  "driver": "auto"
+}

@@ -45,12 +45,26 @@ export function useShaderPipeline(
     if (!canvas) return;
 
     let disposed = false;
+    const defaultUniforms =
+      options.component?.uniforms?.reduce((acc: any, u: any) => {
+        if (u.name && u.defaultValue !== undefined) {
+          acc[u.name] = u.defaultValue;
+        }
+        return acc;
+      }, {}) ?? {};
+
+    const initialUniforms = {
+      ...defaultUniforms,
+      ...(options.uniforms ?? {})
+    };
+
     const inst = new ShaderPipeline({
       ...options,
       canvas,
       glsl,
       wgsl,
-      canvas2dFallback
+      canvas2dFallback,
+      uniforms: initialUniforms
     });
     pipelineRef.current = inst;
 
