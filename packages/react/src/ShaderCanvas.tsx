@@ -64,6 +64,7 @@ export const ShaderCanvas = forwardRef<HTMLCanvasElement, ShaderCanvasProps>(
     }, [pipeline]);
 
     return React.createElement('canvas', {
+      key: props.driver ?? 'auto',
       ref: innerRef,
       className,
       style: { width: '100%', height: '100%', display: 'block', ...style },

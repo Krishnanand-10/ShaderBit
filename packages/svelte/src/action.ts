@@ -80,6 +80,7 @@ export function shaderCanvas(
       return pipeline;
     },
     update(newOptions: Partial<ShaderActionOptions>) {
+      if (disposed) return;
       const glslChanged = newOptions.glsl !== undefined && newOptions.glsl !== currentOptions.glsl;
       const wgslChanged = newOptions.wgsl !== undefined && newOptions.wgsl !== currentOptions.wgsl;
       const driverChanged = newOptions.driver !== undefined && newOptions.driver !== currentOptions.driver;

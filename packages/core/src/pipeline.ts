@@ -136,11 +136,14 @@ export class ShaderPipeline {
     if (preference === 'webgl2' || preference === 'auto') {
       try {
         const glDriver = new WebGL2Driver(this.options.canvas);
-        if (await glDriver.init(this.options.glsl)) {
+        const ok = await glDriver.init(this.options.glsl);
+        if (ok) {
           this.activeDriver = glDriver;
           this.activeDriverType = 'webgl2';
           this.setupControllers();
           return;
+        } else if (preference === 'webgl2') {
+          throw new Error('WebGL2 shader compilation failed: context unavailable or compilation error');
         }
       } catch (err) {
         if (preference === 'webgl2') throw err;

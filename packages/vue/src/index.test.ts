@@ -138,7 +138,7 @@ describe('@shaderbit/vue', () => {
     const pipelines: any[] = [];
     const options = reactive({
       glsl: 'void main() {}',
-      driver: 'canvas2d' as any,
+      driver: 'webgl2' as any,
       onInit: (p: any) => {
         pipelines.push(p);
       }
@@ -162,8 +162,8 @@ describe('@shaderbit/vue', () => {
     expect(pipelines.length).toBe(1);
     const firstPipeline = pipelines[0];
 
-    // Change structural property: driver
-    options.driver = 'webgl2';
+    // Change structural property: glsl
+    options.glsl = 'void main() { fragColor = vec4(1.0); }';
     await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 50));
 

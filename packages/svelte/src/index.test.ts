@@ -72,7 +72,7 @@ describe('@shaderbit/svelte', () => {
     const pipelines: any[] = [];
     const action = shaderCanvas(canvas, {
       glsl: 'void main() {}',
-      driver: 'canvas2d',
+      driver: 'webgl2',
       onInit: (p: any) => {
         pipelines.push(p);
       }
@@ -82,8 +82,8 @@ describe('@shaderbit/svelte', () => {
     expect(pipelines.length).toBe(1);
     const firstPipeline = pipelines[0];
 
-    // Change driver structurally
-    action.update({ driver: 'webgl2' });
+    // Change glsl structurally
+    action.update({ glsl: 'void main() { gl_FragColor = vec4(0.0); }' });
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(pipelines.length).toBe(2);

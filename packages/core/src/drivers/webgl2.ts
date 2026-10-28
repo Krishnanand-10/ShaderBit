@@ -203,6 +203,9 @@ void main() {
       this.uniformLocations.clear();
       this.gl = null;
     }
+    if (this.canvas && '_activeContextType' in this.canvas) {
+      (this.canvas as any)._activeContextType = null;
+    }
     this.buffer = null;
     this.vao = null;
     this.vertexShader = null;
