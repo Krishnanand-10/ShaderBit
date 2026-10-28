@@ -16,9 +16,9 @@ export function detectProject(cwd = process.cwd()): ProjectEnvironment {
     try {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
       const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
-      if (deps['react'] || deps['react-dom']) framework = 'react';
-      else if (deps['vue']) framework = 'vue';
-      else if (deps['svelte']) framework = 'svelte';
+      if (deps['react'] || deps['react-dom'] || deps['next']) framework = 'react';
+      else if (deps['vue'] || deps['nuxt']) framework = 'vue';
+      else if (deps['svelte'] || deps['@sveltejs/kit']) framework = 'svelte';
     } catch {
       // Ignore JSON parse errors
     }

@@ -6,13 +6,27 @@ export interface ListCommandOptions {
   driver?: string;
 }
 
-export function listCommand(options: ListCommandOptions = {}): { output: string; data: ShaderComponent[] } {
+export function listCommand(
+  options: ListCommandOptions = {}
+): { output: string; data: ShaderComponent[] } {
   let components = listComponents();
 
   if (options.category) {
+    const cat = options.category.toLowerCase();
     components = components.filter((c) =>
-      c.tags.some((t) => t.toLowerCase().includes(options.category!.toLowerCase()))
+      c.tags.some((t) => t.toLowerCase().includes(cat))
     );
+  }
+
+  if (options.driver) {
+    const drv = options.driver.toLowerCase();
+    components = components.filter((c) => {
+      if (drv === 'canvas2d' || drv === '2d') return !!c.canvas2dFallback;
+      if (drv === 'webgpu') return !!c.wgsl;
+      if (drv === 'webgl2') return !!c.glsl;
+      if (drv === 'auto') return !!(c.glsl || c.wgsl || c.canvas2dFallback);
+      return false;
+    });
   }
 
   if (options.json) {
